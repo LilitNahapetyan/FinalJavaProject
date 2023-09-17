@@ -1,0 +1,5 @@
+Room Booking History for Room ID 1
+
+Customer              Start Date     End Date
+--------------------------------------------
+lk              2011-11-11     2012-11-11
