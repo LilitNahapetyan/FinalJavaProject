@@ -1,5 +1,6 @@
-Room Booking History for Room ID 1
-
-Customer              Start Date     End Date
 --------------------------------------------
-lk              2011-11-11     2012-11-11
+Room Booking History for Room ID 1
+Customer              Start Date     End Date
+
+Lilit              2026-11-11     2029-11-11
+Lilit              2023-12-12     2023-12-18

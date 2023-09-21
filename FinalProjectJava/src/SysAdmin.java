@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 public class SysAdmin implements Serializable{
+    @Serial
+    private static final long serialVersionUID = 4301720204968325812L;
     private final String roomFileName = "registeredRooms.ser";
     private final String roomBookingsFilename = "roomBookingsArchive.ser";
     private final String customerBookingsFilename = "customerBookingArchive";
@@ -44,25 +46,22 @@ public class SysAdmin implements Serializable{
         }
     }
 
-    public void registerRoom(int roomType) {
-        switch (roomType) {
-            case 1 -> {
-                hotelRooms.add(new SingleRoom());
-                System.out.println("Single Room added.");
-            }
-            case 2 -> {
-                hotelRooms.add(new DoubleRoom());
-                System.out.println("Double Room added.");
-            }
-            case 3 -> {
-                hotelRooms.add(new DeluxeRoom());
-                System.out.println("Deluxe Room added.");
-            }
-            default -> System.out.println("Invalid room type. Please try again.");
-        }
+    // Admin is adding a new hotel room
+    // This action involves creating a new room instance and configuring its properties.
+    public void registerSingleRoom(){
+        hotelRooms.add(new SingleRoom());
+        System.out.println("Single Room added.");
+    }
+    public void registerDoubleRoom(){
+        hotelRooms.add(new DoubleRoom());
+        System.out.println("Double Room added.");
+    }
+    public void registerDeluxeRoom(){
+        hotelRooms.add(new SingleRoom());
+        System.out.println("Deluxe Room added.");
     }
 
-
+    //Find and display available rooms for a given period.
     public void availableRoomsForPeriod(LocalDate startDate, LocalDate endDate){
         boolean available = false;
         for (Room r: hotelRooms){
@@ -115,15 +114,20 @@ public class SysAdmin implements Serializable{
         }
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-            writer.println("Room Booking History for Room ID " + roomID);
-            writer.println();
-
-            writer.println("Customer              Start Date     End Date");
             writer.println("--------------------------------------------");
-
-            for (RoomBooking booking : getRoomBookingHistory(room)) {
-                writer.println(booking.getCustomer().getName() + "              " +
-                        booking.getStartDate() + "     " + booking.getEndDate());
+            if (roomBookingsMap.isEmpty()) {
+                writer.println("No room bookings.\"");
+            } else {
+                writer.println("Room Booking History for Room ID " + roomID);
+                writer.println("Customer              Start Date     End Date");
+                writer.println();
+                for (Map.Entry<Room, List<RoomBooking>> entry : roomBookingsMap.entrySet()) {
+                    List<RoomBooking> bookings = entry.getValue();
+                    for (RoomBooking booking : bookings) {
+                        writer.println(booking.getCustomer().getName() + "              " +
+                                booking.getStartDate() + "     " + booking.getEndDate());
+                    }
+                }
             }
 
             System.out.println("Room booking history report for Room ID " + roomID + " written to " + fileName);
@@ -131,7 +135,6 @@ public class SysAdmin implements Serializable{
             System.err.println("Error writing room booking history report to file: " + e.getMessage());
         }
     }
-
 
     public void generateBill(RoomBooking booking) {
         double roomCharge = booking.getTotalCost();
@@ -160,67 +163,122 @@ public class SysAdmin implements Serializable{
             customerBookingsMap.put(customerToRegister, new ArrayList<>());
             System.out.println("Customer registered successfully.");
         } else {
-            System.out.println("Customer is already registered.");
+            System.err.println("Customer is already registered.");
         }
     }
 
-    public void saveRooms() {
+    private void saveRooms() {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(roomFileName))) {
             objectOutputStream.writeObject(hotelRooms);
             objectOutputStream.flush();
-            System.out.println("Rooms data saved successfully.");
         } catch (IOException e) {
             System.err.println("Error saving room data: " + e.getMessage());
         }
     }
 
-    public void saveRoomBookings() {
+    private void saveRoomBookings() {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(roomBookingsFilename))) {
             objectOutputStream.writeObject(roomBookingsMap);
             objectOutputStream.flush();
-            System.out.println("Room bookings data saved successfully.");
         } catch (IOException e) {
             System.err.println("Error saving room bookings data: " + e.getMessage());
         }
     }
 
-    public void saveCustomerBookings() {
+    private void saveCustomerBookings() {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(customerBookingsFilename))) {
             objectOutputStream.writeObject(customerBookingsMap);
             objectOutputStream.flush();
-            System.out.println("Customer bookings data saved successfully.");
         } catch (IOException e) {
             System.err.println("Error saving customer bookings data: " + e.getMessage());
         }
     }
-    public void loadRooms() {
+    private void loadRooms() {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(roomFileName))) {
             List<Room> savedRooms = (List<Room>) objectInputStream.readObject();
             hotelRooms.addAll(savedRooms);
             System.out.println("Room data loaded successfully from " + roomFileName);
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No saved room data found.");
+            System.err.println("No saved room data found.");
         }
     }
-    public void loadRoomBookings() {
+    private void loadRoomBookings() {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(roomBookingsFilename))) {
             Map<Room, List<RoomBooking>> savedRoomBookingsMap = (Map<Room, List<RoomBooking>>) objectInputStream.readObject();
             roomBookingsMap.clear();
             roomBookingsMap.putAll(savedRoomBookingsMap);
             System.out.println("Room bookings map loaded successfully from " + roomBookingsFilename);
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No saved room bookings map found.");
+            System.err.println("No room bookings data found.");
         }
     }
 
-    public void loadCustomerBookings() {
+    private void loadCustomerBookings() {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(customerBookingsFilename))) {
             Map<Customer, List<RoomBooking>> savedCustomerBookingsMap = (Map<Customer, List<RoomBooking>>) objectInputStream.readObject();
             customerBookingsMap.clear();
             customerBookingsMap.putAll(savedCustomerBookingsMap);
             System.out.println("Customer bookings map loaded successfully from " + customerBookingsFilename);
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No saved customer bookings map found.");
+            System.err.println("No saved customer bookings map found.");
+        }
+    }
+
+    public void printHotelInfo() {
+        System.out.println("Hotel Information:");
+        System.out.println("---------------------------------");
+
+        // Print Hotel Rooms
+        System.out.println("Hotel Rooms:");
+        if (hotelRooms.isEmpty()) {
+            System.out.println("No rooms available.");
+        } else {
+            for (Room room : hotelRooms) {
+                System.out.println(room);
+            }
+        }
+
+        System.out.println();
+        // Print Room Bookings
+        System.out.println("Room Bookings:");
+        if (roomBookingsMap.isEmpty()) {
+            System.out.println("No room bookings.");
+        } else {
+            for (Map.Entry<Room, List<RoomBooking>> entry : roomBookingsMap.entrySet()) {
+                Room room = entry.getKey();
+                List<RoomBooking> bookings = entry.getValue();
+                System.out.println(room);
+                for (RoomBooking booking : bookings) {
+                    System.out.println("Customer Name: " + booking.getCustomer().getName());
+                    System.out.println("Booking Period: " + booking.getStartDate() + " to " + booking.getEndDate());
+                    System.out.println("Total Cost: $" + booking.getTotalCost());
+                    System.out.println("---------------------------------");
+                }
+            }
+        }
+
+        System.out.println();
+        // Print Customer Bookings
+        System.out.println("Customer Bookings:");
+        if (customerBookingsMap.isEmpty()) {
+            System.out.println("No customer bookings.");
+        } else {
+            for (Map.Entry<Customer, List<RoomBooking>> entry : customerBookingsMap.entrySet()) {
+                Customer customer = entry.getKey();
+                List<RoomBooking> bookings = entry.getValue();
+
+                System.out.println("Customer Name: " + customer.getName());
+                System.out.println("Customer Email: " + customer.getEmail());
+                System.out.println("Total Bookings: " + bookings.size());
+                System.out.println("Bookings:");
+
+                for (RoomBooking booking : bookings) {
+                    System.out.println("Room Type: " + booking.getRoom().getRoomType());
+                    System.out.println("Booking Period: " + booking.getStartDate() + " to " + booking.getEndDate());
+                    System.out.println("Total Cost: $" + booking.getTotalCost());
+                    System.out.println("---------------------------------");
+                }
+            }
         }
     }
 

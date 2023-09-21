@@ -1,7 +1,10 @@
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 public class Customer implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -450981020981188647L;
     private String name;
     private String email;
 
@@ -17,16 +20,6 @@ public class Customer implements Serializable {
     public String getEmail() {
         return email;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-
 
     @Override
     public String toString() {

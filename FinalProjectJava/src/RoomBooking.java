@@ -1,11 +1,16 @@
 import room.Room;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class RoomBooking {
-    private Customer customer;
-    private Room room;
-    private LocalDate startDate;
-    private LocalDate endDate;
+public class RoomBooking implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1996450030499171140L;
+    private final Customer customer;
+    private final Room room;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
 
     public RoomBooking(Customer customer, Room room, LocalDate startDate, LocalDate endDate) {

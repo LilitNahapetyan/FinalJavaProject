@@ -1,10 +1,14 @@
 package room;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Reservation {
-    private LocalDate startDate;
-    private LocalDate endDate;
+public class Reservation implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -2999064689991666732L;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
     public Reservation(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
@@ -18,4 +22,5 @@ public class Reservation {
     public LocalDate getEndDate() {
         return endDate;
     }
+
 }

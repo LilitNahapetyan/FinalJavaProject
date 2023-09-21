@@ -8,13 +8,11 @@ import java.util.List;
 
 public abstract class Room implements Serializable {
     @Serial
-    private static final long serialVersionUID = 14165563114686L;
-    private int roomId;
-    private RoomType roomType;
+    private static final long serialVersionUID = 8340103473456058155L;
+    private final int roomId;
+    private final RoomType roomType;
     private static int generateRoomId = 0;
-    private double pricePerDay;
     List<Reservation> reservationList = new ArrayList<>();
-    private boolean isAvailable = true;
 
     public Room(RoomType roomType) {
         this.roomId = generateRoomId++;
@@ -43,7 +41,7 @@ public abstract class Room implements Serializable {
 
     public boolean isAvailable(LocalDate startTime, LocalDate endTime) {
         if (reservationList.isEmpty()) {
-            return true; // The room is available because there are no reservations
+            return true;
         }
 
         Reservation newReservation = new Reservation(startTime, endTime);
@@ -52,13 +50,12 @@ public abstract class Room implements Serializable {
             LocalDate existingStartDate = existingReservation.getStartDate();
             LocalDate existingEndDate = existingReservation.getEndDate();
 
-            // Check for full overlap or partial overlap
             if (!(newReservation.getStartDate().isAfter(existingEndDate)
                     || newReservation.getEndDate().isBefore(existingStartDate))) {
-                return false; // The room is not available for the specified time period
+                return false;
             }
         }
-        return true; // The room is available for the specified time period
+        return true;
     }
 
     @Override

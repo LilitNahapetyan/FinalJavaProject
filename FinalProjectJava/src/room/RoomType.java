@@ -21,8 +21,4 @@ public enum RoomType {
         return pricePerDay;
     }
 
-    @Override
-    public String toString() {
-        return typeName;
-    }
 }
